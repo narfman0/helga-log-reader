@@ -1,5 +1,10 @@
 """ Plugin to parse helga logs from CHANNEL_LOGGING_DIR """
-import optparse, os, re, requests
+import optparse
+import os
+import re
+import requests
+import traceback
+
 from datetime import date, datetime
 from helga import settings
 from helga.plugins import command
@@ -16,12 +21,18 @@ def log_reader(client, channel, nick, message, cmd, args):
 
 def post_dpaste(content, title):
     """ Post content to dpaste """
-    payload = {'title':title, 'content':content}
+    if not content:
+        return 'No content to paste!'
+    payload = {'title': title, 'content': content}
     response = requests.post('http://dpaste.com/api/v2/', payload)
     location = response.headers.get('location', '')
-    if location:
+    if response.status_code == 201 or location:
+        if not location:
+            return 'dpaste location empty, probably no contents?'
         return location
-    return 'dpaste rejected log post, possibly empty'
+    if response.status_code == 413:
+        return "Response too big for dpaste, please narrow your query"
+    return 'dpaste.com rejected log post with status: ' + str(response.status_code)
 
 
 def parse_logs(args, channel):
@@ -41,7 +52,7 @@ def parse_logs(args, channel):
                 parse_file(results, log_dir, f, middle_date, start_time,
                            end_time, options.nick, options.text)
         except:
-            print 'Exception parsing file: ' + f
+            traceback.print_exc()
     return options, ''.join(results)
 
 
@@ -49,12 +60,19 @@ def parse_file(results, log_dir, file_name, middle_date, start_time, end_time, n
     """ Grab results from file """
     file_path = os.path.join(log_dir, file_name)
     with open(file_path, 'r') as f:
+        # need to verify lines that dont start with date are still valid logworthy lines
+        valid = False
         for line in f:
-            time = parse_time(line[:8])
-            nick_matches = re.match(nick, line.split('-')[1].strip())
-            time_matches = middle_date or (time >= start_time and time <= end_time)
-            text_matches = re.search(text, line.split('-')[2])
-            if nick_matches and time_matches and text_matches:
+            try:
+                time = parse_time(line[:8])
+                nick_matches = re.match(nick, line.split('-')[1].strip())
+                time_matches = middle_date or (time >= start_time and time <= end_time)
+                text_matches = re.search(text, line.split('-')[2])
+                valid = nick_matches and time_matches and text_matches
+            except ValueError:
+                # not a line with date at the beginning, use last validity check
+                pass
+            if valid:
                 results.append(line)
 
 
