@@ -5,7 +5,7 @@ from pip.req import parse_requirements
 from helga_log_reader import __version__ as version
 
 requirements = [
-    str(req.req) for req in parse_requirements('requirements.txt')
+    str(req.req) for req in parse_requirements('requirements.txt', session=False)
 ]
 
 setup(
