@@ -1,9 +1,11 @@
-import optparse, os, random, re, requests
+""" Plugin to parse helga logs from CHANNEL_LOGGING_DIR """
+import optparse, os, re, requests
 from datetime import date, datetime
 from helga import settings
 from helga.plugins import command
 
-_help_text = 'Show log for dates, nicks, and terms'
+_help_text = 'Show log for dates, nicks, and terms e.g. !log --start_date 2015-01-02'
+
 
 @command('log', help=_help_text)
 def log_reader(client, channel, nick, message, cmd, args):
@@ -11,11 +13,16 @@ def log_reader(client, channel, nick, message, cmd, args):
     options, logs = parse_logs(args, channel)
     return post_dpaste(logs, options.channel + ' logs')
 
+
 def post_dpaste(content, title):
     """ Post content to dpaste """
     payload = {'title':title, 'content':content}
     response = requests.post('http://dpaste.com/api/v2/', payload)
-    return response.headers['location']
+    location = response.headers.get('location', '')
+    if location:
+        return location
+    return 'dpaste rejected log post, possibly empty'
+
 
 def parse_logs(args, channel):
     """ Parse all logs matching args """
@@ -37,6 +44,7 @@ def parse_logs(args, channel):
             print 'Exception parsing file: ' + f
     return options, ''.join(results)
 
+
 def parse_file(results, log_dir, file_name, middle_date, start_time, end_time, nick, text):
     """ Grab results from file """
     file_path = os.path.join(log_dir, file_name)
@@ -49,13 +57,16 @@ def parse_file(results, log_dir, file_name, middle_date, start_time, end_time, n
             if nick_matches and time_matches and text_matches:
                 results.append(line)
 
+
 def parse_date(date_string):
     """ Parse date from string """
     return datetime.strptime(date_string, '%Y-%m-%d')
 
+
 def parse_time(time_string):
     """ Parse time from string """
     return datetime.strptime(time_string, '%H:%M:%S')
+
 
 def parse_args(args, channel=''):
     """ Create option parser and parse """

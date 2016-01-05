@@ -14,9 +14,11 @@ text by adding the corresponding arguments.
 
 ``!log --nick narfman0`` - returns only messages posted by user/nick "narfman0"
 
+``!log --start_date 2016-01-02`` - shows messages sent since Jan2 2016
+
 License
 -------
 
-Copyright (c) 2015 Jon Robison
+Copyright (c) 2016 Jon Robison
 
 See included LICENSE for licensing information
