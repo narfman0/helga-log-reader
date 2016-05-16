@@ -1,12 +1,7 @@
-from pip.req import parse_requirements
+from parse_requirements_not_suckily import parse_requirements
 from setuptools import setup, find_packages
-
-from pip.req import parse_requirements
 from helga_log_reader import __version__ as version
 
-requirements = [
-    str(req.req) for req in parse_requirements('requirements.txt', session=False)
-]
 
 setup(
     name='helga-log-reader',
@@ -29,9 +24,9 @@ setup(
     include_package_data=True,
     py_modules=['helga_log_reader.plugin'],
     zip_safe=True,
-    install_requires=requirements,
+    install_requires=parse_requirements(),
     test_suite='',
-    entry_points = dict(
+    entry_points=dict(
         helga_plugins=[
             'log-reader = helga_log_reader.plugin:log_reader',
         ],
