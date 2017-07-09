@@ -5,7 +5,7 @@ from helga_log_reader import __version__ as version
 setup(
     name='helga-log-reader',
     version=version,
-    description=('Define words from urbandictionary.com'),
+    description=('Read logs from helga bot logging'),
     classifiers=[
         'Development Status :: 4 - Beta',
         'Topic :: Communications :: Chat :: Internet Relay Chat',
@@ -14,7 +14,7 @@ setup(
         'Programming Language :: Python',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Communications :: Chat :: Internet Relay Chat'],
-    keywords='irc bot log-reader urbandictionary urban dictionary ud',
+    keywords='irc bot log-reader logs',
     author='Jon Robison',
     author_email='narfman0@gmail.com',
     url='https://github.com/narfman0/helga-log-reader',
@@ -23,7 +23,10 @@ setup(
     include_package_data=True,
     py_modules=['helga_log_reader.plugin'],
     zip_safe=True,
-    install_requires=['requests', ],
+    install_requires=[
+        'helga',
+        'requests',
+    ],
     test_suite='',
     entry_points=dict(
         helga_plugins=[

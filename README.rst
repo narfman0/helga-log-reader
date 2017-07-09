@@ -1,6 +1,12 @@
 helga-log-reader
 ================
 
+.. image:: https://badge.fury.io/py/helga-log-reader.png
+    :target: https://badge.fury.io/py/helga-log-reader
+
+.. image:: https://travis-ci.org/narfman0/helga-log-reader.png?branch=master
+    :target: https://travis-ci.org/narfman0/helga-log-reader
+
 Read logs when enabled in helga settings. Has a large set of arguments, defaults
 to the day.
 
